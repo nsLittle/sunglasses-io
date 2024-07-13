@@ -5,38 +5,69 @@ const server = require('../app/server'); // Adjust the path as needed
 const should = chai.should();
 chai.use(chaiHttp);
 
-// Importing the data from JSON files
-const users = require('../initial-data/users.json');
-const brands = require('../initial-data/brands.json');
-const products = require('../initial-data/products.json');
-
 // TODO: Write tests for the server
-
 describe('Brands', () => {
-  describe('GETS all brand naames', () => {
-    it('should return all brands', (done) => {
-      assert.equal(brands.length, 5);
-      done();
+  describe('GETS all brand names', () => {
+    it('it should return all brand names', (done) => {
+      chai.request(server)
+        .get('/brands')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          done();
+        });
     });
   });
-});
-
-describe('Products', () => {
-  describe('GETS all products', () => {
-    it('should return all products', (done) => {
-      assert.equal(products.length, 11);
-      done();
+  describe('GETS all product names', () => {
+    it('it should return all product names', (done) => {
+      chai.request(server)
+        .get('/products')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          done();
+        });
     });
   });
-  describe('GETS specified', () => {
-    it('should return specified product', (done) => {
-      const product = products.find(p => p.id === "11");
-      assert.equal(product.name, "Habanero");
-      done();
+  describe('GETS details for specified product', () => {
+    it('it should return all details for specified product', (done) => {
+      chai.request(server)
+        .get('/products/:name')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('object');
+          done();
+        });
     });
   });
 });
 
 describe('Login', () => {});
 
-describe('Cart', () => {});
+  // Reconfigure to AUTHENTICATE
+describe('Cart', () => {
+  describe('somethiing about authentication', () => {
+    it('it should say something about authentication', (done) => {
+       chai.request(server)
+        .get('/users')
+        .end((err,res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          done();
+        });
+    });
+  });
+
+  // Reconfigure to GET cart from specified user rather than the whole json
+  describe('GETS cart from specified user', () => {
+    it('it should return cart array', (done) => {
+      chai.request(server)
+        .get('/users/:name/cart')
+        .end((err,res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          done();
+        });
+    });
+  });
+});

@@ -62,7 +62,7 @@ describe('Cart', () => {
   describe('GETS cart from specified user', () => {
     it('it should return cart array', (done) => {
       chai.request(server)
-        .get('/users/:name/cart')
+        .get('/users/:name')
         .end((err,res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');

@@ -40,7 +40,6 @@ app.get('/brands/:name', (req, res) => {
   const brand = brands.find(brand => brand.name === brandName); //Oakley
   const brandId = brand.id; // 1
   const product = products.filter(product => product.categoryId === brandId);
-  console.log(product);
   if (brand) {
     res.json(product);
   } else {

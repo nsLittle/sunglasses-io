@@ -31,9 +31,9 @@ describe('Brands', () => {
   });
   describe('GETS details for specified product', () => {
     it('it should return all details for specified product', (done) => {
-      const productName = 'Sunglasses';
+      const productName = "Habanero";
       chai.request(server)
-        .get('/products/${productName}')
+        .get(`/products/${productName}`)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.an('object');
@@ -62,9 +62,9 @@ describe('Cart', () => {
   // Reconfigure to GET cart from specified user rather than the whole json
   describe('GETS cart from specified user', () => {
     it('it should return cart array of specified user', (done) => {
-      const userName = "natalia";
+      const userName = 'natalia';
       chai.request(server)
-        .get('/users/${userName}')
+        .get(`/users/${userName}`)
         .end((err,res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');

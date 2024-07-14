@@ -26,7 +26,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Route for root path
 app.get('/', (req, res) => {
-	res.send("Let's shop for sunglasses!");
+	res.send("Let's shop for SUPER sunglasses!");
 });
 
 // Routes for /brands, /products, and /users
@@ -35,23 +35,38 @@ app.get('/brands', (req, res) => {
   res.json(brandNames);
 });
 
+app.get('/brands/:name', (req, res) => {
+  const brandName = req.params.name; //Oakley
+  const brand = brands.find(brand => brand.name === brandName); //Oakley
+  const brandId = brand.id; // 1
+  const product = products.filter(product => product.categoryId === brandId);
+  console.log(product);
+  if (brand) {
+    res.json(product);
+  } else {
+    res.status(404).send('Products by brand not found');
+  };
+});
+
 app.get('/products', (req, res) => {
 	const productNames = products.map(product => product.name);
 	res.json(productNames);
 });
 
 app.get('/products/:name', (req, res) => {
-	const productName = products.map(product => product.name);
-  const productDescription = products.map(product => product.description);
-  const productPrice = products.map(product => product.price);
-  const productImageUrls = products.map(product => product.imageUrls);
-  const productDetails = {
-    "name": "productName",
-    "description": "productDescription",
-    "price": "productPrice",
-    "imageUrls": "productImageUrls",
-  };
-	res.json(productDetails);
+  const productName = req.params.name;
+  const product = products.find(product => product.name === productName);
+  if (product) {
+    const productDetails = {
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      imageUrls: product.imageUrls
+    };
+    res.json(productDetails);
+  } else{
+    res.status(404).json({ error: 'Product not found'});
+  }
 });
 
 app.get('/users', (req, res) => {
@@ -60,10 +75,11 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/users/:name', (req, res) => {
-  const userName = req.params.name.toLowerCase();
+  const userName = req.params.name;
   const user = users.find(user => user.name.first === userName);
   if (user) {
-    res.json(user.cart);
+    const userCart = user.cart;
+    res.json(userCart);
   } else {
     res.status(404).json({ error: 'User not found' });
   };

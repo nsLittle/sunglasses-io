@@ -31,8 +31,9 @@ describe('Brands', () => {
   });
   describe('GETS details for specified product', () => {
     it('it should return all details for specified product', (done) => {
+      const productName = 'Sunglasses';
       chai.request(server)
-        .get('/products/:name')
+        .get('/products/${productName}')
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.an('object');
@@ -44,10 +45,10 @@ describe('Brands', () => {
 
 describe('Login', () => {});
 
-  // Reconfigure to AUTHENTICATE
+  // Reconfigure to AUTHENTICATE instead of just returning first names of users
 describe('Cart', () => {
-  describe('somethiing about authentication', () => {
-    it('it should say something about authentication', (done) => {
+  describe('GETS autentication something something', () => {
+    it('it should return authenticated users', (done) => {
        chai.request(server)
         .get('/users')
         .end((err,res) => {
@@ -60,9 +61,10 @@ describe('Cart', () => {
 
   // Reconfigure to GET cart from specified user rather than the whole json
   describe('GETS cart from specified user', () => {
-    it('it should return cart array', (done) => {
+    it('it should return cart array of specified user', (done) => {
+      const userName = "natalia";
       chai.request(server)
-        .get('/users/:name')
+        .get('/users/${userName}')
         .end((err,res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');

@@ -1,11 +1,192 @@
-swagger: '2.0'
+openapi: 3.0.3
 info:
-    version: '1.0.0'
-    title: 'E-Commerce API'
-    description: 'API for managing brands, products, and user cart'
-host: 'localhost:3000'
-schemes:
-    - 'http'
-basePath: '/api'
-produces:
-    - 'application/json'
+  title: Sunglasses.io
+  version: 1.0.11
+  description: This is the backend server of a mock Sunglasses.io store with inventory.
+  termsOfService: http://localhost:3000
+  contact:
+    email: notsolittle88@gmail.com
+    name: nsLittle
+    url: https://github.com/nsLittle
+  license:
+    name: Shades 2.0
+    url: http://www.localhost:3000/README.md
+servers:
+  - url: http://localhost:3000/
+tags:
+  - name: find
+    description: Find sunglasses that fit your style
+    externalDocs:
+      description: Find sunglasses that fit your style
+      url: http://localhost:3000/
+  - name: store
+    description: Online sunglass store inventory
+    externalDocs:
+      description: Online sunglasses store inventory
+      url: http://localhost:3000/
+  - name: user
+    description: User's shopping cart for sunglass store
+    externalDocs:
+      description: User's shopping cart for sunglass store
+      url: http://localhost:3000/
+paths:
+  /brands:
+    summary: Brand names
+    description: Name of all brands available from Sunglasses.io
+    get:
+      summary: GET brand names
+      description: GET all brand names available from Sunglasses.io
+      operationId: get_brands
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                initial-data:
+                  value: |-
+                    [
+                    "Oakley",
+                    "Ray Ban",
+                    "Levi's",
+                    "DKNY",
+                    "Burberry"
+                    ]
+  /brands/:name:
+    summary: Products from :brand
+    description: All prducts from :brand available from Sunglasses.io
+    get:
+      summary: GET products from :brand
+      description: GET all products from :brand available from Sunglasses.io
+      operationId: get_brands_:name
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                routed-data-oakley:
+                  value: >-
+                    [
+
+                    {
+
+                    "id": "1",
+
+                    "categoryId": "1",
+
+                    "name": "Superglasses",
+
+                    "description": "The best glasses in the world",
+
+                    "price": 150,
+
+                    "imageUrls": [
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
+
+                    ]
+
+                    },
+
+                    {
+
+                    "id": "2",
+
+                    "categoryId": "1",
+
+                    "name": "Black Sunglasses",
+
+                    "description": "The best glasses in the world",
+
+                    "price": 100,
+
+                    "imageUrls": [
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
+
+                    ]
+
+                    },
+
+                    {
+
+                    "id": "3",
+
+                    "categoryId": "1",
+
+                    "name": "Brown Sunglasses",
+
+                    "description": "The best glasses in the world",
+
+                    "price": 50,
+
+                    "imageUrls": [
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
+
+                    ]
+
+                    }
+
+                    ]
+  /products:
+    summary: Product names
+    description: All products available from Sunglasses.io
+    get:
+      summary: GET product names
+      description: GET all product names available from Sunglasses.io
+      operationId: get_products
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                inital-data:
+                  value: |-
+                    [
+                    "Superglasses",
+                    "Black Sunglasses",
+                    "Brown Sunglasses",
+                    "Better glasses",
+                    "Glasses",
+                    "glas",
+                    "QDogs Glasses",
+                    "Coke cans",
+                    "Sugar",
+                    "Peanut Butter",
+                    "Habanero"
+                    ]
+  /users:
+    summary: User names
+    description: All users registered with Sunglasses.io
+    get:
+      summary: GET user names
+      description: GET all user names registered with Sunglasses.io
+      operationId: get_users
+      responses:
+        default:
+          description: Default error sample response
+          content:
+            application/json:
+              examples:
+                initial-data:
+                  value: |-
+                    [
+                    "susanna",
+                    "salvador",
+                    "natalia"
+                    ]

@@ -7,6 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./swagger.yaml'); // Replace './swagger.yaml' with the path to your Swagger file
 const app = express();
+const path = require('path');
 
 app.use(bodyParser.json());
 
@@ -24,9 +25,22 @@ app.use((err, req, res, next) => {
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Serve static files from 'public' directory
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Route for root path
 app.get('/', (req, res) => {
-	res.send("Let's shop for SUPER sunglasses!");
+  res.send(`
+    <html>
+      <head>
+        <title>Sunglasses.io</title>
+      </head>
+      <body>
+        <h1>Let's shop for SUPER sunglasses!</h1>
+        <img src="/SunglassesWireframe.png" alt="Sunglasses Wireframeeeee">
+      </body>
+    </html>
+  `);
 });
 
 // Routes for /brands, /products, and /users
@@ -36,6 +50,7 @@ app.get('/brands', (req, res) => {
 });
 
 app.get('/brands/:name', (req, res) => {
+  // MAKE LOWERCASE &  NO SYMBOLS & NO SPACE
   const brandName = req.params.name; //Oakley
   const brand = brands.find(brand => brand.name === brandName); //Oakley
   const brandId = brand.id; // 1
@@ -53,6 +68,7 @@ app.get('/products', (req, res) => {
 });
 
 app.get('/products/:name', (req, res) => {
+  // MAKE LOWERCASE &  NO SYMBOLS & NO SPACE
   const productName = req.params.name;
   const product = products.find(product => product.name === productName);
   if (product) {
@@ -74,6 +90,8 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/users/:name', (req, res) => {
+  // SOMETHING ABOUT AUTHENTICATION
+  // MAKE LOWERCASE
   const userName = req.params.name;
   const user = users.find(user => user.name.first === userName);
   if (user) {
@@ -83,6 +101,10 @@ app.get('/users/:name', (req, res) => {
     res.status(404).json({ error: 'User not found' });
   };
 });
+
+app.post('/users/:name', (req, res) => {
+  // UPDATE CART
+})
 
 // Starting the server
 const PORT = process.env.PORT || 3000;

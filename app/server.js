@@ -79,9 +79,9 @@ app.get('/products/:name', (req, res) => {
       imageUrls: product.imageUrls
     };
     res.json(productDetails);
-  } else{
+  } else {
     res.status(404).json({ error: 'Product not found'});
-  }
+  };
 });
 
 app.get('/users', (req, res) => {
@@ -104,7 +104,11 @@ app.get('/users/:name', (req, res) => {
 
 app.post('/users/:name', (req, res) => {
   // UPDATE CART
-})
+});
+
+app.delete('/users/:name', (req, res) => {
+  // DELETE CART
+});
 
 // Starting the server
 const PORT = process.env.PORT || 3000;

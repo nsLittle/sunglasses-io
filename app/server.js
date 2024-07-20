@@ -82,13 +82,14 @@ app.get('/products/:name', (req, res) => {
   // NO SYMBOLS & NO SPACE
   const productName = req.params.name.toLowerCase();
   const product = products.find(product => product.name.toLowerCase() === productName);
+  const productDetails = {
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    imageUrls: product.imageUrls
+  };
+
   if (product) {
-    const productDetails = {
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      imageUrls: product.imageUrls
-    };
     res.json(productDetails);
   } else {
     res.status(404).json({ error: 'Product not found'});
@@ -101,7 +102,7 @@ app.get('/users', (req, res) => {
   res.json(userNames);
 });
 
-// ONLY AUTHENTICATED USERS
+// if user exists, return user.cart
 app.get('/:name', (req, res) => {
   // set route /:name
   const userName = req.params.name.toLowerCase();
@@ -120,7 +121,7 @@ app.get('/:name', (req, res) => {
 });
 
 
-app.post('/users/:name', (req, res) => {
+app.post('/:name', (req, res) => {
   // UPDATE CART
 });
 

@@ -1,7 +1,12 @@
 [
   {
     "gender": "female",
-    "cart": ["Habanero"],
+    "cart": [
+      {
+        "product": "Habanero",
+        "quantity": 1
+      }
+    ],
     "name": {
       "title": "mrs",
       "first": "susanna",
@@ -35,7 +40,20 @@
   },
   {
     "gender": "male",
-    "cart": ["Superglasses", "Black Sunglasses", "Brown Sunglasses"],
+    "cart": [
+      {
+        "product": "Superglasses",
+        "quantity": 1
+      },
+      {
+        "product": "Black Sunglasses",
+        "quantity": 1
+      },
+      {
+        "product": "Brown Sunglasses",
+        "quantity": 2
+      }
+    ],
     "name": {
       "title": "mr",
       "first": "salvador",

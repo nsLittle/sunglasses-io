@@ -1,12 +1,16 @@
 [
   {
     "gender": "female",
-    "cart": [
-      {
-        "product": "Habanero",
-        "quantity": 1
-      }
-    ],
+    "cart": {
+      "items": [
+        {
+          "product": "Habanero",
+          "quantity": 1,
+          "price": 153
+        }
+      ],
+      "total": 153
+    },
     "name": {
       "title": "mrs",
       "first": "susanna",
@@ -40,20 +44,26 @@
   },
   {
     "gender": "male",
-    "cart": [
-      {
-        "product": "Superglasses",
-        "quantity": 1
-      },
-      {
-        "product": "Black Sunglasses",
-        "quantity": 1
-      },
-      {
-        "product": "Brown Sunglasses",
-        "quantity": 2
-      }
-    ],
+    "cart": {
+      "items": [
+        {
+          "product": "Superglasses",
+          "quantity": 1,
+          "price": 150
+        },
+        {
+          "product": "Black Sunglasses",
+          "quantity": 1,
+          "price": 100
+        },
+        {
+          "product": "Brown Sunglasses",
+          "quantity": 2,
+          "price": 50
+        }
+      ],
+      "total": 300
+    },
     "name": {
       "title": "mr",
       "first": "salvador",
@@ -87,7 +97,16 @@
   },
   {
     "gender": "female",
-    "cart": ["Superglasses"],
+    "cart": {
+      "items": [
+        {
+          "product": "Superglasses",
+          "quantity": 1,
+          "price": 150
+        }
+      ],
+      "total": 150
+    },
     "name": {
       "title": "mrs",
       "first": "natalia",

@@ -1,14 +1,12 @@
 const http = require('http');
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml'); // REPLACE WITH NEW ONE './swagger.yaml' with the path to your Swagger file
+const swaggerDocument = YAML.load('./swagger.yaml'); // REPLACED with new one './swagger.yaml' with the path to your Swagger file
 const app = express();
 const path = require('path');
-const uid = require('rand-token').uid;
 
 app.use(bodyParser.json());
 
@@ -17,9 +15,38 @@ const users = require('../initial-data/users.json');
 const brands = require('../initial-data/brands.json');
 const products = require('../initial-data/products.json');
 
-// Access tokens
-const newAccessToken = uid(12);
-let accessTokens = [];
+// CORS
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, X-Authentication, X-Username, X-Password, X-ApiKey"
+};
+
+// Middleware stuff...
+app.use((req, res, next) => {
+  res.set(CORS_HEADERS);
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
+// Created with https://www.uuidgenerator.net/
+const VALID_API_KEYS = ["ABC"];
+
+// Authentication middleware
+const authenticate = (req, res, next) =>  {
+  const username = req.headers['X-Username'];
+  const password = req.headers['X-Password'];
+  const apiKey =  req.headers['X-ApiKey'];
+
+  const user = users.find((user) => user.login.username === username && user.login.password === password);
+
+  if (!user || apiKey !== VALID_API_KEYS)  {
+    return res.status(401).send('You do not belong here!');
+  }
+
+  next();
+};
 
 // Error handling
 app.use((err, req, res, next) => {
@@ -35,23 +62,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Route for root path
 app.get('/', (req, res) => {
-  res.send(`
-    <html>
-      <head>
-        <title>Sunglasses.io</title>
-      </head>
-      <body>
-        <h1>Let's shop for SUPA sunglasses!!!</h1>
-        <div id="password-box">
-          <input type="text" placeholder="username"></input>
-          <input type="password" placeholder="password"></input>
-          <button type="submit">Login</button>
-          </br>
-        </div>
-        <img src="/SunglassesWireframe.png" alt="Sunglasses Wireframeeeee">
-      </body>
-    </html>
-  `);
+  res.send('../index.html');
 });
 
 // Routes for /brands, /products, and /users
@@ -88,41 +99,51 @@ app.get('/products/:name', (req, res) => {
     price: product.price,
     imageUrls: product.imageUrls
   };
-
   if (product) {
     res.json(productDetails);
   } else {
-    res.status(404).json({ error: 'Product not found'});
+    res.status(404).send('Product not found');
   };
 });
 
-// ONLY AUTHENTICATED STORE PERSONNEL
-app.get('/users', (req, res) => {
-  const userNames = users.map(user => user.name.first);
-  res.json(userNames);
+
+
+// ONLY AUTHENTICATED STORE PERSONNEL AND/OR USERS
+app.get('/login', (req, res) =>{
+  res.status(200).send(`Let's organize the store.`)
 });
 
-// if user exists, return user.cart
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const userName = users.find(user =>user.login.username);
+  const passWord = users.find(user => user.login.password);
+
+  if (username === userName && password === passWord) {
+    res.status(200).send(`Let's Shop!`);
+  } else {
+    res.status(401).send(`You are not authrorized to Shop!`)
+  }
+});
+
+app.get('/users', (req, res) => {
+  const userNames = users.map(user => user.name.first);
+  res.status(200).json(userNames);
+});
+
 app.get('/:name', (req, res) => {
-  // set route /:name
   const userName = req.params.name.toLowerCase();
-  // if /:name === user.name.first
   const user = users.find(user => user.name.first.toLowerCase() === userName);
-    
-  // if user exists, return user.cart
+
   if (user) {
     const userCart = user.cart;
-    res.json(userCart);
-  // else return error
+    res.status(200).json(userCart);
   } else {
-    res.writeHead(400, 'Incorrect login username and password');
-    return response.end();
+    res.status(401).send('Unauthorized');
   }; 
 });
 
-
 app.post('/:name', (req, res) => {
-  // UPDATE CART
+  res.status(200).send('Hello shopper!');
 });
 
 app.delete('/users/:name', (req, res) => {

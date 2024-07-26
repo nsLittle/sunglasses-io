@@ -58,13 +58,13 @@ describe('Brands', () => {
 
 describe('Login', () => {});
 
-  // Reconfigure to AUTHENTICATE instead of just returning first names of users
+// Reconfigure to only allow authorized useres to access this
 describe('Cart', () => {
-  describe('GETS autentication something something', () => {
-    it('it should return authenticated users', (done) => {
+  describe('GETS names of users', () => {
+    it('it should return names of users', (done) => {
        chai.request(server)
         .get('/users')
-        .end((err,res) => {
+        .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
           done();
@@ -72,17 +72,20 @@ describe('Cart', () => {
     });
   });
 
-  // Reconfigure to GET cart from specified user rather than the whole json
-  describe('GETS cart from specified user', () => {
-    it('it should return cart array of specified user', (done) => {
-      let userName = 'natalia';
+  // Reconfigure to get cart of authenticated users
+  describe('GETS cart of existing users', () => {
+    it('it should return cart of existing users', (done) => {
       chai.request(server)
-        .get(`/${userName}`)
-        .end((err,res) => {
+        .get('/susanna')
+        .end((err, res)=> {
           res.should.have.status(200);
-          res.body.should.be.an('array');
+          res.body.should.be.an('object');
+          res.body.should.have.property('items');
+          res.body.should.have.property('total');
           done();
         });
     });
   });
+
+
 });

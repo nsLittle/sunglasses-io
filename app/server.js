@@ -127,7 +127,7 @@ app.get('/:name', authenticate, (req, res) => {
 });
 
 app.post('/:name', authenticate, (req, res) => {
-  res.status(200).send('Your shopping cart is updated');
+  res.status(200).send('Your shopping cart has been updated');
 });
 
 app.delete('/:name', (req, res) => {

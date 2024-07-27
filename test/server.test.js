@@ -10,7 +10,21 @@ const users = require('../initial-data/users.json');
 const brands = require('../initial-data/brands.json');
 const products = require('../initial-data/products.json');
 
-// TODO: Write tests for the server
+// Tests for the server
+describe('Home', () => {
+  describe('GETS home page', () => {
+    it('it should .....', (done) => {
+      chai.request(server)
+        .get('/')
+        .end((err, res) => {
+          res.should.have.status(200);
+          // stuff & stuff
+          done();
+        });
+    });
+  });
+});
+
 describe('Brands', () => {
   describe('GETS all brand names', () => {
     it('it should return all FIVE brand names, including sample brand name [0] "Oakley"', (done) => {
@@ -25,6 +39,9 @@ describe('Brands', () => {
         });
     });
   });
+});
+
+describe('Products', () => {
   describe('GETS all product names', () => {
     it('it should return all ELEVEN product names, including sample product name [0] "Superglasses"', (done) => {
       chai.request(server)
@@ -38,8 +55,8 @@ describe('Brands', () => {
         });
     });
   });
-  describe('GETS details for specified product', () => {
-    it('it should return all details for specified product, including sample product [0] detail price "150"', (done) => {
+  describe('GETS product details by product name', () => {
+    it('it should return product details by product name, including sample product [0] detail price "150"', (done) => {
       const productName = "Superglasses";
       chai.request(server)
         .get(`/products/${productName}`)
@@ -58,19 +75,28 @@ describe('Brands', () => {
 
 describe('Login', () => {
   describe('POST username and password from client-side server', () => {
-    it('it should return ')
+    it(`it should return "Let's shop!"`, (done) => {
+      chai.request(server)
+      .post('/login')
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.text.should.equal(`Let's shop!`);
+        done();
+      })
+    })
   })
 });
 
 // Reconfigure to only allow authorized useres to access this
 describe('Cart', () => {
   describe('GETS names of users', () => {
-    it('it should return names of users', (done) => {
+    it('it should return names of users if authorized', (done) => {
        chai.request(server)
         .get('/users')
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
+          res.body.should.assert(users.length, '3');
           done();
         });
     });

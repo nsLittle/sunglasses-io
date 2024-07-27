@@ -23,7 +23,8 @@ const VALID_APIKEY = ["kznylgunwckqhpmwofzgqetxzdaxafurgbbnfdcnjevfpkukshksujpfr
 // CORS
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, X-Authentication, X-Username, X-Password, X-ApiKey"
+  "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Authentication, X-Username, X-Password, X-ApiKey",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
 };
 
 // Middleware stuff...
@@ -126,7 +127,7 @@ app.get('/:name', authenticate, (req, res) => {
 });
 
 app.post('/:name', authenticate, (req, res) => {
-  res.status(200).send('Hello shopper!');
+  res.status(200).send('Your shopping cart is updated');
 });
 
 app.delete('/:name', (req, res) => {

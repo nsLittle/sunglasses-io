@@ -56,7 +56,11 @@ describe('Brands', () => {
   });
 });
 
-describe('Login', () => {});
+describe('Login', () => {
+  describe('POST username and password from client-side server', () => {
+    it('it should return ')
+  })
+});
 
 // Reconfigure to only allow authorized useres to access this
 describe('Cart', () => {

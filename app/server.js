@@ -2,6 +2,7 @@ const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
+const bcrypt= require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./swagger.yaml'); // REPLACED with new one './swagger.yaml' with the path to your Swagger file
@@ -14,6 +15,10 @@ app.use(bodyParser.json());
 const users = require('../initial-data/users.json');
 const brands = require('../initial-data/brands.json');
 const products = require('../initial-data/products.json');
+
+
+// ApiKey Generator @ https://www.akto.io/tools/api-key-generator
+const VALID_APIKEY = ["kznylgunwckqhpmwofzgqetxzdaxafurgbbnfdcnjevfpkukshksujpfrvhanuftzudvwrmakpxdhznbecuuhckvdilihglyfqonetlnwtizmzbfztkqvpawnbdyvmni"];
 
 // CORS
 const CORS_HEADERS = {
@@ -30,22 +35,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Created with https://www.uuidgenerator.net/
-const VALID_API_KEYS = ["ABC"];
-
 // Authentication middleware
 const authenticate = (req, res, next) =>  {
-  const username = req.headers['X-Username'];
-  const password = req.headers['X-Password'];
-  const apiKey =  req.headers['X-ApiKey'];
+ const { username, password } = req.body;
 
-  const user = users.find((user) => user.login.username === username && user.login.password === password);
-
-  if (!user || apiKey !== VALID_API_KEYS)  {
-    return res.status(401).send('You do not belong here!');
-  }
-
-  next();
+ if (username || password) {
+  return res.status(400).send(`Who are you?`);
+ };
+ next();
 };
 
 // Error handling
@@ -106,31 +103,17 @@ app.get('/products/:name', (req, res) => {
   };
 });
 
-
-
-// ONLY AUTHENTICATED STORE PERSONNEL AND/OR USERS
-app.get('/login', (req, res) =>{
-  res.status(200).send(`Let's organize the store.`)
+// AUTHENTICATED ROUTES
+app.post('/login', authenticate, (req, res) => {
+  res.status(200).send(`Let's shop!`);
 });
 
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const userName = users.find(user =>user.login.username);
-  const passWord = users.find(user => user.login.password);
-
-  if (username === userName && password === passWord) {
-    res.status(200).send(`Let's Shop!`);
-  } else {
-    res.status(401).send(`You are not authrorized to Shop!`)
-  }
-});
-
-app.get('/users', (req, res) => {
+app.get('/users', authenticate, (req, res) => {
   const userNames = users.map(user => user.name.first);
   res.status(200).json(userNames);
 });
 
-app.get('/:name', (req, res) => {
+app.get('/:name', authenticate, (req, res) => {
   const userName = req.params.name.toLowerCase();
   const user = users.find(user => user.name.first.toLowerCase() === userName);
 
@@ -142,12 +125,13 @@ app.get('/:name', (req, res) => {
   }; 
 });
 
-app.post('/:name', (req, res) => {
+app.post('/:name', authenticate, (req, res) => {
   res.status(200).send('Hello shopper!');
 });
 
-app.delete('/users/:name', (req, res) => {
+app.delete('/:name', (req, res) => {
   // DELETE CART
+  res.status(200).send('You should be ADDING to your cart');
 });
 
 // Starting the server

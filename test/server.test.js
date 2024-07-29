@@ -39,6 +39,18 @@ describe('Brands', () => {
         });
     });
   });
+  describe('GETS all product names by brand', () => {
+    it('it should return names of all products by brand', (done) => {
+      const productName = 'Oakley';
+      chai.request(server)
+        .get(`/brands/${productName}`)
+        .end((err, res) =>{
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          done();
+        });
+    });
+  });
 });
 
 describe('Products', () => {
@@ -77,20 +89,20 @@ describe('Login', () => {
   describe('POST username and password from client-side server', () => {
     it(`it should return "Let's shop!"`, (done) => {
       chai.request(server)
-      .post('/login')
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.text.should.equal(`Let's shop!`);
-        done();
-      })
-    })
-  })
+        .post('/login')
+        // .send({ username: 'testuser', password: 'testpass' })
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.text.should.equal(`Let's shop!`);
+          done();
+        });
+      });
+   });
 });
 
-// Reconfigure to only allow authorized useres to access this
-describe('Cart', () => {
+describe('Users', () =>{
   describe('GETS names of users', () => {
-    it('it should return names of users if authorized', (done) => {
+    it('it should return names of users', (done) => {
        chai.request(server)
         .get('/users')
         .end((err, res) => {
@@ -101,8 +113,10 @@ describe('Cart', () => {
         });
     });
   });
+});
 
-  // Reconfigure to get cart of authenticated users
+// Only allow authorized useres to access this
+describe('Cart', () => {
   describe('GETS cart of existing users', () => {
     it('it should return cart of existing users', (done) => {
       chai.request(server)
@@ -116,6 +130,31 @@ describe('Cart', () => {
         });
     });
   });
+  describe('POST cart of existing users', () => {
+    it('it should return updated cart of existing users', (done) => {
+      const newCart = { newItems: [{ newProduct: "glas", newQuantity: 5, newPrice: 500 }], newTotal: 1000 };
 
-
+      chai.request(server)
+        .post('/susanna')
+        .send(newCart)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('object');
+          res.body.should.have.property('newItems').that.deep.equals([{ newProduct: "glas", newQuantity: 5, newPrice: 500 }]);
+          res.body.should.have.property('newTotal').that.equals(1000);
+          done();
+        });
+    });
+  });
+  describe('DELETE cart of existing users', () => {
+    it('it should return with item deleted from cart of existing users', (done) => {
+      chai.request(server)
+      .delete('/susanna')
+      .delete((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.an('object');
+        done();
+      });
+    });
+  });
 });

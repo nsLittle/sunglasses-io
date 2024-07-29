@@ -127,7 +127,21 @@ app.get('/:name', authenticate, (req, res) => {
 });
 
 app.post('/:name', authenticate, (req, res) => {
-  res.status(200).send('Your shopping cart has been updated');
+  const userName = req.params.name.toLowerCase;
+  const newCart = {
+    newItems:[{
+      newProduct: req.body.product || [],
+      newQuantity: req.body.quantity || [],
+      newPrice: req.body.total || 0,
+    }],
+    newTotal: 1000
+  };
+
+  if (!newCart) {
+    return res.status(404).send('Cart not found.');
+  };
+
+  res.status(200).json(newCart);
 });
 
 app.delete('/:name', (req, res) => {

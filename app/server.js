@@ -105,7 +105,7 @@ app.get('/products/:name', (req, res) => {
 });
 
 // AUTHENTICATED ROUTES
-app.post('/login', authenticate, (req, res) => {
+app.get('/login', authenticate, (req, res) => {
   res.status(200).send(`Let's shop!`);
 });
 

@@ -30,3 +30,5 @@ This mockup of an online Sunglass store is my first backend API project. I used 
 ### Things to Add/Edit
 
 1. All the things
+2. JWT token?
+3. SORT /product by alphabetical order

@@ -2,76 +2,158 @@ openapi: 3.0.3
 info:
   title: Sunglasses.io
   version: 1.0.11
-  description: " Our online Sunglass Store application features a backend server and API to allow users to shop from existing ineventory."
-  termsOfService: https://github.com/nsLittle/sunglasses-io
+  description: This is a Sunglasses Store Server based on the OpenAPI 3.0 specification.
   contact:
     email: notsolittle88@gmail.com
     name: Mutsumi Hata
     url: https://github.com/nsLittle
-servers:
-  - url: http://localhost:3000
-    variables: {}
-  - url: http://localhost:3000
-    variables: {}
-    description: Local Host
 paths:
   /:
-    summary: Home Page
-    description: Home Page with WireFrame
+    summary: Home page
+    description: Home page with front-end store mocked in wireframe
     get:
       summary: GET home page
-      description: GET home page with wireframe
+      description: GET home page with front-end store mocked in wireframe
       operationId: get.home
       responses:
         default:
           description: Default error sample response
   /brands:
-    summary: Brands
-    description: Name of all brands
+    summary: Brand names
+    description: Brand names of sunglasses
     get:
-      summary: GET brands
-      description: GET name of all brands
+      summary: GET brand names
+      description: GET brand names of sunglasses
       operationId: get.brands
       responses:
         default:
           description: Default error sample response
-  /brands/:name:
-    summary: Sunglasses by brand
-    description: Product details of sunglasses by brands
+  /brands/{name}:
+    summary: Sunglasses by brand name
+    description: Sunglasses by brand name
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
     get:
-      summary: GET product details
-      description: GET product details of sunglasses by product brand
-      operationId: get.brand.:name
+      summary: GET by brand name
+      description: GET sunglasses by brand name
+      operationId: get.brand.name
       responses:
         default:
           description: Default error sample response
+          content:
+            application/json:
+              examples:
+                Oakley:
+                  value: >-
+                    [ { "id": "1", "categoryId": "1", "name": "Superglasses",
+                    "description": "The best glasses in the world", "price":
+                    150, "imageUrls": [
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
+                    ] }, { "id": "2", "categoryId": "1", "name": "Black
+                    Sunglasses", "description": "The best glasses in the world",
+                    "price": 100, "imageUrls": [
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
+                    ] }, { "id": "3", "categoryId": "1", "name": "Brown
+                    Sunglasses", "description": "The best glasses in the world",
+                    "price": 50, "imageUrls": [
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
+                    ] } ]
   /products:
-    summary: Sunglases
-    description: Name of all sunglasses
+    summary: Products
+    description: Product names
     get:
-      summary: GET sunglasses
-      description: GET name of all sunglasses
+      summary: GET products
+      description: GET product names
       operationId: get.products
       responses:
         default:
           description: Default error sample response
-  /products/:name:
-    summary: Product details
-    description: Product details of specific sunglasses
+  /products/{name}:
+    summary: GET products by name
+    description: GET products by name
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
     get:
-      summary: GET product details
-      description: GET product details of sunglsses by product name
-      operationId: get.products.:name
+      summary: GET product details by name
+      description: GET product details by product name
+      operationId: get.products.name
       responses:
         default:
           description: Default error sample response
-  /users:
-    summary: Users
-    description: Name of all users
+  /login:
+    summary: Login to authenticate user
+    description: Login to authenticate user
     get:
-      summary: GET users
-      description: GET. users
+      summary: GET
+      description: GET
+      operationId: get.login
+      responses:
+        default:
+          description: Default error sample response
+      security:
+        - basicAuth: []
+  /users:
+    summary: User names
+    description: User names
+    get:
+      summary: GET user names
+      description: GET user names
       operationId: get.users
       responses:
         default:
           description: Default error sample response
+      security:
+        - basicAuth: []
+  /{name}:
+    summary: User's cart
+    description: User's cart
+    parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: GET user's cart
+      description: GET user's cart
+      operationId: get.cart
+      responses:
+        default:
+          description: Default error sample response
+    post:
+      summary: POST user's cart
+      description: POST user's cart
+      operationId: post.cart
+      responses:
+        default:
+          description: Default error sample response
+    delete:
+      summary: DELETE user's cart
+      description: DELETE user's cart
+      operationId: delete.cart
+      responses:
+        default:
+          description: Default error sample response
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+servers:
+  - url: http://localhost:3000
+    variables: {}
+    description: localhost:3000

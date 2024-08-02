@@ -127,25 +127,30 @@ app.get('/:name', authenticate, (req, res) => {
 });
 
 app.post('/:name', authenticate, (req, res) => {
-  const userName = req.params.name.toLowerCase;
-  const newCart = {
-    newItems:[{
-      newProduct: req.body.product || [],
-      newQuantity: req.body.quantity || [],
-      newPrice: req.body.total || 0,
-    }],
-    newTotal: 1000
+  const userName = req.params.name.toLowerCase();
+  const user = users.find(user => user.name.first.toLowerCase() === userName);
+
+  if (!user) {
+    return res.status(404).send('User not found.');
   };
 
-  if (!newCart) {
-    return res.status(404).send('Cart not found.');
+  if (!user.cart) {
+    user.cart = { items: [], total: 0 };
   };
 
-  res.status(200).json(newCart);
+  const newItem= {
+      product: req.body.product || '',
+      quantity: req.body.quantity || 0,
+      price: req.body.total || 0,
+  };
+
+  user.cart.items.push(newItem);
+  user.cart.total = user.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  res.status(200).json(user.cart);
 });
 
 app.delete('/:name', (req, res) => {
-  // DELETE CART
   res.status(200).send('You should be ADDING to your cart');
 });
 

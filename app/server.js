@@ -9,16 +9,13 @@ const swaggerDocument = YAML.load('./swagger.yaml'); // REPLACED with new one '.
 const app = express();
 const path = require('path');
 
+app.use(express.json())
 app.use(bodyParser.json());
 
 // Importing the data from JSON files
 const users = require('../initial-data/users.json');
 const brands = require('../initial-data/brands.json');
 const products = require('../initial-data/products.json');
-
-
-// ApiKey Generator @ https://www.akto.io/tools/api-key-generator
-const VALID_APIKEY = ["kznylgunwckqhpmwofzgqetxzdaxafurgbbnfdcnjevfpkukshksujpfrvhanuftzudvwrmakpxdhznbecuuhckvdilihglyfqonetlnwtizmzbfztkqvpawnbdyvmni"];
 
 // CORS
 const CORS_HEADERS = {
@@ -36,14 +33,35 @@ app.use((req, res, next) => {
   next();
 });
 
-// Authentication middleware
-const authenticate = (req, res, next) =>  {
- const { username, password } = req.body;
+// Secret key for JWT
+// node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3';
 
- if (username || password) {
-  return res.status(400).send(`Who are you?`);
- };
- next();
+// Authentication middleware
+const authenticateJWT = (req, res, next) =>  {
+  console.log(req.headers);
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).send('Invalid token');
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.status(401).send('Authorization header missing');
+  }
+
+  // if (user && bcrypt.compareSync(password, user.login.password)) {
+  //   req.user = user;
+  //   return next();
+  // }
+  //   return res.status(401).send(`Who are you?`);
 };
 
 // Error handling
@@ -73,17 +91,19 @@ app.get('/brands/:name', (req, res) => {
   // NO SYMBOLS & NO SPACE
   const brandName = req.params.name.toLowerCase(); //Oakley
   const brand = brands.find(brand => brand.name.toLowerCase() === brandName); //Oakley
-  const brandId = brand.id; // 1
-  const product = products.filter(product => product.categoryId === brandId);
+
   if (brand) {
+    const brandId = brand.id; // 1
+    const product = products.filter(product => product.categoryId === brandId);
     res.json(product);
   } else {
-    res.status(404).send('Products by brand not found');
+    res.status(401).send('Brand name not found');
   };
 });
 
 app.get('/products', (req, res) => {
 	const productNames = products.map(product => product.name);
+
 	res.json(productNames);
 });
 
@@ -91,30 +111,55 @@ app.get('/products/:name', (req, res) => {
   // NO SYMBOLS & NO SPACE
   const productName = req.params.name.toLowerCase();
   const product = products.find(product => product.name.toLowerCase() === productName);
-  const productDetails = {
-    name: product.name,
-    description: product.description,
-    price: product.price,
-    imageUrls: product.imageUrls
-  };
+
   if (product) {
+    const productDetails = {
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      imageUrls: product.imageUrls
+    };
     res.json(productDetails);
   } else {
-    res.status(404).send('Product not found');
+    res.status(401).send('Product not found');
   };
 });
 
 // AUTHENTICATED ROUTES
-app.get('/login', authenticate, (req, res) => {
-  res.status(200).send(`Let's shop!`);
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(user => user.login.username === username);
+
+  if  (user && bcrypt.compareSync(password, user.login.password)) {
+    const token = jwt.sign({ username: user.login.username }, JWT_SECRET, {expiresIn: '1h' });
+    res.json( { token });
+  } else {
+    res.status(401).send('Username or password is incorrect');
+  }
+
+  // let currentAccessToken = accessTokens.find(tokenObject => tokenObject.username === username);
+
+  // if (currentAccessToken) {
+  //   currentAccessToken.lastUpdated = new Date();
+  //   res.status(200).json(currentAccessToken.token);
+  // } else {
+  //   const newAccessToken = {
+  //     username: username,
+  //     password: password,
+  //     lastUpdated: new Date(),
+  //     token: "hznbecuuhckvdilihglyfqonetlnwtizmzbfztkqvpawnbdyvmni",
+  //   };
+  //   accessTokens.push(newAccessToken);
+  //   res.status(200).json(newAccessToken.token);
+  // };
 });
 
-app.get('/users', authenticate, (req, res) => {
+app.get('/users', authenticateJWT, (req, res) => {
   const userNames = users.map(user => user.name.first);
   res.status(200).json(userNames);
 });
 
-app.get('/:name', authenticate, (req, res) => {
+app.get('/:name', authenticateJWT, (req, res) => {
   const userName = req.params.name.toLowerCase();
   const user = users.find(user => user.name.first.toLowerCase() === userName);
 
@@ -126,12 +171,12 @@ app.get('/:name', authenticate, (req, res) => {
   }; 
 });
 
-app.post('/:name', authenticate, (req, res) => {
+app.post('/:name', authenticateJWT, (req, res) => {
   const userName = req.params.name.toLowerCase();
   const user = users.find(user => user.name.first.toLowerCase() === userName);
 
   if (!user) {
-    return res.status(404).send('User not found.');
+    return res.status(401).send('User not found.');
   };
 
   if (!user.cart) {
@@ -139,18 +184,20 @@ app.post('/:name', authenticate, (req, res) => {
   };
 
   const newItem= {
-      product: req.body.product || '',
-      quantity: req.body.quantity || 0,
-      price: req.body.total || 0,
+    product: req.body.product || '',
+    quantity: req.body.quantity || 0,
+    price: req.body.total || 0,
   };
 
   user.cart.items.push(newItem);
-  user.cart.total = user.cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  user.cart.total = user.cart.items.reduce(
+    (sum, item) => sum + (item.price * item.quantity), 0
+  );
 
   res.status(200).json(user.cart);
 });
 
-app.delete('/:name', (req, res) => {
+app.delete('/:name', authenticateJWT, (req, res) => {
   res.status(200).send('You should be ADDING to your cart');
 });
 

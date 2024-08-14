@@ -7,17 +7,17 @@
   <body>
     <h1>Let's shop for SUPA sunglasses!!!</h1>
 
-    <div id="'input-box">
+    <div id="input-box">
       <div id="api-input-box">
         <input id="api-box" type="text" placeholder="API Key"></input>
-        <button id="submit-api" type="submit">Enter API Key</button>
+        <button id="submit" type="submit">Enter API Key</button>
         <br>
       </div>
 
       <div id="username-password-input-box">
         <input id="username-box" type="text" placeholder="username"></input>
         <input id="password-box" type="password" placeholder="password"></input>
-        <button id="submit-login" type="submit">Login</button>
+        <button id="submit" type="submit">Login</button>
         </br>
       </div>
     </div>
@@ -25,12 +25,12 @@
     <img src="/SunglassesWireframe.png" alt="Sunglasses Wireframeeeee">
 
     <script>
-      document.getElementById('input-box').addEventListener('click', () => {
+      document.getElementById('submit').addEventListener('click', () => {
         const apiKey = document.getElementById('api-box').value;
         const username = document.getElementById('username-box').value;
         const password = document.getElementById('password-box').value;
               
-        fetch('/login', {
+        fetch('http://localhost:3000/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

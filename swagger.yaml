@@ -10,27 +10,48 @@ info:
 paths:
   /:
     summary: Home page
-    description: Home page with front-end store mocked in wireframe
+    description: Home page with FE store mocked in wireframe. Not BE, but for my own visual purposes to determine what routes need to be served.
     get:
+      tags:
+        - Home
       summary: GET home page
-      description: GET home page with front-end store mocked in wireframe
+      description: GET home page with FE store mocked in wireframe
       operationId: get.home
       responses:
         default:
           description: Default error sample response
+          content:
+            application/xml:
+              examples:
+                Home:
+                  value: "'../index.html'"
   /brands:
     summary: Brand names
-    description: Brand names of sunglasses
+    description: Names of sunglasses brands
     get:
+      tags:
+        - Brands
       summary: GET brand names
-      description: GET brand names of sunglasses
+      description: GET names of sunglasses brands
       operationId: get.brands
       responses:
         default:
           description: Default error sample response
+          content:
+            application/json:
+              examples:
+                Default:
+                  value: |-
+                    [
+                    "Oakley",
+                    "Ray Ban",
+                    "Levi's",
+                    "DKNY",
+                    "Burberry"
+                    ]
   /brands/{name}:
     summary: Sunglasses by brand name
-    description: Sunglasses by brand name
+    description: Sunglasses product details by brand name
     parameters:
       - name: name
         in: path
@@ -38,8 +59,10 @@ paths:
         schema:
           type: string
     get:
-      summary: GET by brand name
-      description: GET sunglasses by brand name
+      tags:
+        - Brands
+      summary: GET sunglasses by brand name
+      description: GET sunglasses product details by brand name
       operationId: get.brand.name
       responses:
         default:
@@ -69,18 +92,38 @@ paths:
                     "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
                     ] } ]
   /products:
-    summary: Products
-    description: Product names
+    summary: Product names
+    description: Sunglasses by product names
     get:
-      summary: GET products
-      description: GET product names
+      tags:
+        - Products
+      summary: GET product names
+      description: GET sunglasses by product names
       operationId: get.products
       responses:
         default:
           description: Default error sample response
+          content:
+            application/json:
+              examples:
+                Default:
+                  value: |-
+                    [
+                    "Superglasses",
+                    "Black Sunglasses",
+                    "Brown Sunglasses",
+                    "Better glasses",
+                    "Glasses",
+                    "glas",
+                    "QDogs Glasses",
+                    "Coke cans",
+                    "Sugar",
+                    "Peanut Butter",
+                    "Habanero"
+                    ]
   /products/{name}:
-    summary: GET products by name
-    description: GET products by name
+    summary: GET product details
+    description: GET product details by sunglasses name
     parameters:
       - name: name
         in: path
@@ -88,39 +131,73 @@ paths:
         schema:
           type: string
     get:
-      summary: GET product details by name
-      description: GET product details by product name
+      tags:
+        - Products
+      summary: GET product details by sunglasses name
+      description: GET product details by sunglasses name
       operationId: get.products.name
       responses:
         default:
           description: Default error sample response
+          content:
+            application/json:
+              examples:
+                glas:
+                  value: >-
+                    { "name": "glas", "description": "Pretty awful glasses,
+                    "price": 10, "imageUrls": [
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg",
+                    "https://image.shutterstock.com/z/stock-photo-yellow-sunglasses-white-backgound-600820286.jpg"
+                    ] }
   /login:
     summary: Login to authenticate user
     description: Login to authenticate user
     get:
-      summary: GET
-      description: GET
+      tags:
+        - Login, Cart
+      summary: GET login to authenticate user
+      description: GET login to authenticate user
       operationId: get.login
       responses:
         default:
           description: Default error sample response
+          content:
+            text/plain; charset=utf-8:
+              examples:
+                Authentication:
+                  value: |2-
+                          "username": "greenlion235",
+                          "password": "waters",
       security:
         - basicAuth: []
   /users:
-    summary: User names
-    description: User names
+    summary: Users' names
+    description: Users' names
     get:
-      summary: GET user names
-      description: GET user names
+      tags:
+        - Login, Cart
+      summary: GET users' names
+      description: GET users' names
       operationId: get.users
       responses:
         default:
           description: Default error sample response
+          content:
+            application/json:
+              examples:
+                Default:
+                  value: |-
+                    [
+                    "susanna",
+                    "salvador",
+                    "natalia"
+                    ]
       security:
         - basicAuth: []
   /{name}:
     summary: User's cart
-    description: User's cart
+    description: User's cart contents
     parameters:
       - name: name
         in: path
@@ -128,20 +205,56 @@ paths:
         schema:
           type: string
     get:
+      tags:
+        - Login, Cart
       summary: GET user's cart
-      description: GET user's cart
+      description: GET user's cart contents
       operationId: get.cart
       responses:
         default:
           description: Default error sample response
+          content:
+            application/json:
+              examples:
+                susanna:
+                  value: |-
+                    {
+                    "items": [
+                    {
+                    "product": "Habanero",
+                    "quantity": 1,
+                    "price": 153
+                    }
+                    ],
+                    "total": 153
+                    }
     post:
+      tags:
+        - Login, Cart
       summary: POST user's cart
-      description: POST user's cart
+      description: POST user's cart contents
       operationId: post.cart
       responses:
         default:
           description: Default error sample response
+          content:
+            application/json:
+              examples:
+                Default:
+                  value: |-
+                    {
+                    "items": [
+                    {
+                    "product": "glas",
+                    "quantity": 1,
+                    "price": 50
+                    }
+                    ],
+                    "total": 50
+                    }
     delete:
+      tags:
+        - Login, Cart
       summary: DELETE user's cart
       description: DELETE user's cart
       operationId: delete.cart

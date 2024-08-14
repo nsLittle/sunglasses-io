@@ -14,7 +14,8 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
-    "express": "^4.18.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "express-basic-auth": "^1.2.1",
     "finalhandler": "latest",
     "http": "latest",

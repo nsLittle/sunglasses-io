@@ -38,14 +38,15 @@ describe('Brands', () => {
         });
     });
   });
-  describe('GETS all product names by brand', () => {
-    it('it should return names of all products by brand', (done) => {
+  describe('GETS all product names by brand name', () => {
+    it('it should return product names by brand name', (done) => {
       const productName = 'Oakley';
       chai.request(server)
         .get(`/brands/${productName}`)
         .end((err, res) =>{
           res.should.have.status(200);
           res.body.should.be.an('array');
+          //  DOES IT RESPOND WITH PRODUCTS NAMES BY BRAND NAME
           done();
         });
     });
@@ -88,7 +89,7 @@ describe('Login', () => {
   describe('POST username and password from client-side server', () => {
     it(`it should return "Let's shop!"`, (done) => {
       chai.request(server)
-        .get('/login')
+        .post('/login')
         .end((err, res) => {
           res.should.have.status(200);
           res.text.should.equal(`Let's shop!`);

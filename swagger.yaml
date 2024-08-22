@@ -153,12 +153,31 @@ paths:
   /login:
     summary: Login to authenticate user
     description: Login to authenticate user
-    get:
+    post:
       tags:
         - Login, Cart
-      summary: GET login to authenticate user
-      description: GET login to authenticate user
-      operationId: get.login
+      summary: POST login to authenticate user
+      description: POST login to authenticate user
+      operationId: post.login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "greenlion235"
+                password:
+                  type: string
+                  example: "waters"
+          examples:
+            LoginExample:
+              summary: Example login request
+              value:
+                username: "greenlion235"
+                password: "waters"
       responses:
         default:
           description: Default error sample response
@@ -166,11 +185,10 @@ paths:
             text/plain; charset=utf-8:
               examples:
                 Authentication:
-                  value: |2-
-                          "username": "greenlion235",
-                          "password": "waters",
-      security:
-        - basicAuth: []
+                  value: |-
+                    {
+                      "token": "9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3"
+                    }
   /users:
     summary: Users' names
     description: Users' names
@@ -195,6 +213,7 @@ paths:
                     ]
       security:
         - basicAuth: []
+        - bearerAuth: []
   /{name}:
     summary: User's cart
     description: User's cart contents
@@ -228,6 +247,8 @@ paths:
                     ],
                     "total": 153
                     }
+      security:
+        - bearerAuth: []
     post:
       tags:
         - Login, Cart
@@ -252,6 +273,8 @@ paths:
                     ],
                     "total": 50
                     }
+      security:
+        - bearerAuth: []
     delete:
       tags:
         - Login, Cart
@@ -261,11 +284,17 @@ paths:
       responses:
         default:
           description: Default error sample response
+      security:
+        - bearerAuth: []
 components:
   securitySchemes:
     basicAuth:
       type: http
       scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 servers:
   - url: http://localhost:3000
     variables: {}

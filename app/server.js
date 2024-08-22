@@ -39,7 +39,7 @@ const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26a
 
 // Authentication middleware
 const authenticateJWT = (req, res, next) =>  {
-  console.log(req.headers);
+  // console.log(req.headers);
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
@@ -56,12 +56,6 @@ const authenticateJWT = (req, res, next) =>  {
   } else {
     res.status(401).send('Authorization header missing');
   }
-
-  // if (user && bcrypt.compareSync(password, user.login.password)) {
-  //   req.user = user;
-  //   return next();
-  // }
-  //   return res.status(401).send(`Who are you?`);
 };
 
 // Error handling
@@ -84,7 +78,7 @@ app.get('/', (req, res) => {
 // Routes for /brands, /products, and /users
 app.get('/brands', (req, res) => {
   const brandNames = brands.map(brand => brand.name);
-  res.json(brandNames);
+  res.json( { 'All Brand Names': brandNames });
 });
 
 app.get('/brands/:name', (req, res) => {
@@ -95,7 +89,7 @@ app.get('/brands/:name', (req, res) => {
   if (brand) {
     const brandId = brand.id; // 1
     const product = products.filter(product => product.categoryId === brandId);
-    res.json(product);
+    res.json({ [brandName]: product });
   } else {
     res.status(401).send('Brand name not found');
   };
@@ -104,7 +98,7 @@ app.get('/brands/:name', (req, res) => {
 app.get('/products', (req, res) => {
 	const productNames = products.map(product => product.name);
 
-	res.json(productNames);
+	res.json({ 'All Product Names': productNames });
 });
 
 app.get('/products/:name', (req, res) => {
@@ -119,7 +113,7 @@ app.get('/products/:name', (req, res) => {
       price: product.price,
       imageUrls: product.imageUrls
     };
-    res.json(productDetails);
+    res.json({ 'Product Details': productDetails });
   } else {
     res.status(401).send('Product not found');
   };
@@ -129,29 +123,22 @@ app.get('/products/:name', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   const user = users.find(user => user.login.username === username);
+  console.log('Username: ', username);
+  console.log('Password: ', password);
 
-  if  (user && bcrypt.compareSync(password, user.login.password)) {
-    const token = jwt.sign({ username: user.login.username }, JWT_SECRET, {expiresIn: '1h' });
-    res.json( { token });
+  if (user &&  password === user.login.password) {
+    // GENERATES TOKEN
+    const token = jwt.sign({ username: user.login.username }, JWT_SECRET, {expiresIn: '1d' });
+    console.log('Token: ', token);
+
+    // ROUTE to (/{user.name.first})
+    const redirectUrl =`/${user.name.first}`;
+    console.log(redirectUrl);
+
+    res.status(200).json({ token, redirectUrl: `/${user.name.first}`});
   } else {
     res.status(401).send('Username or password is incorrect');
   }
-
-  // let currentAccessToken = accessTokens.find(tokenObject => tokenObject.username === username);
-
-  // if (currentAccessToken) {
-  //   currentAccessToken.lastUpdated = new Date();
-  //   res.status(200).json(currentAccessToken.token);
-  // } else {
-  //   const newAccessToken = {
-  //     username: username,
-  //     password: password,
-  //     lastUpdated: new Date(),
-  //     token: "hznbecuuhckvdilihglyfqonetlnwtizmzbfztkqvpawnbdyvmni",
-  //   };
-  //   accessTokens.push(newAccessToken);
-  //   res.status(200).json(newAccessToken.token);
-  // };
 });
 
 app.get('/users', authenticateJWT, (req, res) => {

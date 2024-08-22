@@ -39,10 +39,14 @@ const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26a
 
 // Authentication middleware
 const authenticateJWT = (req, res, next) =>  {
-  // console.log(req.headers);
-  const authHeader = req.headers.authorization;
+  console.log(req.headers);
 
-  if (authHeader) {
+
+  const authHeader = req.headers['authorization'];
+  console.log('you got to authentication middleware');
+  console.log(authHeader);
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -121,7 +125,16 @@ app.get('/products/:name', (req, res) => {
 
 // AUTHENTICATED ROUTES
 app.post('/login', (req, res) => {
-  const { username, password } = req.body;
+  const authHeader = req.headers.authorization;
+  console.log(authHeader);
+  if(!authHeader || !authHeader.startsWith('Basic ')) {
+    return res.status(401).send('Unauthorized');
+  }
+  const base64Credentials = authHeader.split(' ')[1];
+  const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+  const [username, password] = credentials.split(':');
+
+  // const { username, password } = req.body;
   const user = users.find(user => user.login.username === username);
   console.log('Username: ', username);
   console.log('Password: ', password);

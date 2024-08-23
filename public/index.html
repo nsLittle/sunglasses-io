@@ -20,76 +20,77 @@
 
     <script>
       document.getElementById('submit').addEventListener('click', (event) => {
-        console.log('On CLick...');
         event.preventDefault();
+        console.log('Front End...');
 
         const username = document.getElementById('username-box').value;
         const password = document.getElementById('password-box').value;
         const credentials = btoa(`${username}:${password}`);
+        let name = '';
 
-        fetch('http://localhost:3000/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${credentials}`
-          },
-          body: JSON.stringify({ username, password })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.token) {
-            console.log('Token', data.token);
 
-            localStorage.setItem('token', data.token);
-            fetchUserCart(username, data.token);
-            fetchUserNames(data.token);
-          } else {
-            console.error('Error: ', data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Failed all the way through index')
-        });
+        function loadUsers() {
+          return fetch('../initial-data/users.json')
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+              }
+              return response.json();
+            })
+            .then(data => data)
+            .catch(error => {
+              console.error('Error loading users:', error);
+            });
+        };
 
         function fetchUserCart(username, token) {
-          fetch(`http://localhost:3000/${username}`, {
-            method: 'GET',
-            headers: {
-              'Authorization':  `Bearer ${token}`
-            }
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log('User Cart: ', data);
-          })
-          .catch(error => {
-            console.log('Error: ', error);
-          });
-        }
+          console.log('Fetching Cart For: ', username);
+          console.log('First Name: ', name);
+          console.log('Using Token: ', token);
 
-        function fetchUserNames(token) {
-          fetch('http://localhost:3000/users', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
-            .then(response => response.json())
+          window.location.href = `http://localhost:3000/${name}`;
+        };
+
+        loadUsers().then(users => {
+          if (users) {
+            const user = users.find(user => user.login.username === username);
+            name = user ? user.name.first : 'Username not found';
+            console.log(`First Name: ${name}`);
+
+            fetch('http://localhost:3000/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${credentials}`
+              },
+              body: JSON.stringify({ username, password })
+            })
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                return response.text();
+              }
+            })
             .then(data => {
-              console.log('User Names: ', data);
+              if (data.token) {
+                localStorage.setItem('token', data.token);
+                console.log('Token: ', data.token);
+
+                fetchUserCart(username, data.token);
+              } else {
+                console.error('Error: ', data.message || data);
+                alert('FE Login Failed' + (data.message || data));
+              }
             })
             .catch(error => {
-              console.log('Error: ', error);
+              console.error('Error:', error);
+              alert('Failed all the way through index')
             });
-        }
-      });
 
-
-
-
+          }
+        });
+     });
     </script>
-
-
   </body>
 </html>

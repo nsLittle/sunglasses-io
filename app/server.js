@@ -26,7 +26,7 @@ const CORS_HEADERS = {
 };
 
 app.use((req, res, next) => {
-  console.log('Getting there');
+  console.log('Basic Middleware Stuff...');
   res.set(CORS_HEADERS);
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -45,29 +45,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // STATIC PUBLIC DIRECTORY
 app.use(express.static(path.join(__dirname, '../public')));
-
-// AUTHENTICATION MIDDLEWARE
-const authenticateJWT = (req, res, next) =>  {
-  const authHeader = req.headers['authorization'];
-  console.log('You got to authentication middleware');
-  console.log(authHeader);
-
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.status(403).send('Invalid token');
-      }
-
-      req.user = user;
-      next();
-    });
-  } else {
-    res.status(401).send('Authorization header missing');
-  }
-};
-
+app.use('/initial-data', express.static(path.join(__dirname, '../initial-data')));
 
 // ROUTE TO ROOT
 app.get('/', (req, res) => {
@@ -123,12 +101,35 @@ app.get('/products/:name', (req, res) => {
 // JWT_SECRET
 const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3';
 
+// AUTHENTICATION MIDDLEWARE
+const authenticateJWT = (req, res, next) =>  {
+  const authHeader = req.headers['authorization'];
+  console.log('Authentication middleware');
+  console.log(authHeader);
+
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).json({ error: 'Invalid token' });
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.status(401).json({ error: 'Authorization header missing'  });
+  }
+};
+
 // LOGIN
 app.post('/login', (req, res) => {
+  console.log('Login Stuff...');
   const authHeader = req.headers.authorization;
-  console.log(authHeader);
+  console.log('AuthHeader: ', authHeader);
   if(!authHeader || !authHeader.startsWith('Basic ')) {
-    return res.status(401).send('Unauthorized');
+    return res.status(401).send({ error: 'Unauthorized' });
   }
   const base64Credentials = authHeader.split(' ')[1];
   const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
@@ -146,7 +147,7 @@ app.post('/login', (req, res) => {
 
     // ROUTE to (/{user.name.first})
     const redirectUrl =`/${user.name.first}`;
-    console.log(redirectUrl);
+    console.log('ReDirectUrl: ', redirectUrl);
 
     res.status(200).json({ token, redirectUrl: `/${user.name.first}`});
   } else {
@@ -155,29 +156,29 @@ app.post('/login', (req, res) => {
 });
 
 // AUTHENTICATED ROUTES
-app.get('/users', authenticateJWT, (req, res) => {
+app.get('/users', (req, res) => {
   const userNames = users.map(user => user.name.first);
-  res.status(200).json(userNames);
+  res.status(200).json({ users: userNames });
 });
 
-app.get('/:name', authenticateJWT, (req, res) => {
+app.get('/:name', (req, res) => {
   const userName = req.params.name.toLowerCase();
   const user = users.find(user => user.name.first.toLowerCase() === userName);
 
   if (user) {
     const userCart = user.cart;
-    res.status(200).json(userCart);
+    res.status(200).json({ users: userCart });
   } else {
-    res.status(401).send('Unauthorized');
+    res.status(401).json({ error: 'Unauthorized' });
   }; 
 });
 
-app.post('/:name', authenticateJWT, (req, res) => {
+app.post('/:name', (req, res) => {
   const userName = req.params.name.toLowerCase();
   const user = users.find(user => user.name.first.toLowerCase() === userName);
 
   if (!user) {
-    return res.status(401).send('User not found.');
+    return res.status(401).json({ error: 'User not found.' });
   };
 
   if (!user.cart) {
@@ -195,10 +196,10 @@ app.post('/:name', authenticateJWT, (req, res) => {
     (sum, item) => sum + (item.price * item.quantity), 0
   );
 
-  res.status(200).json(user.cart);
+  res.status(200).json({ userCart: user.cart });
 });
 
-app.delete('/:name', authenticateJWT, (req, res) => {
+app.delete('/:name', (req, res) => {
   res.status(200).send('You should be ADDING to your cart');
 });
 

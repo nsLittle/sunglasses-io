@@ -105,11 +105,11 @@ const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26a
 const authenticateJWT = (req, res, next) =>  {
   const authHeader = req.headers['authorization'];
   console.log('Authentication middleware');
-  console.log(authHeader);
+  console.log('AuthHeader: ', authHeader);
+  const token = authHeader.split(' ')[1];
+  console.log(token);
 
   if (authHeader) {
-    const token = authHeader.split(' ')[1];
-
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
         return res.status(403).json({ error: 'Invalid token' });
@@ -156,12 +156,12 @@ app.post('/login', (req, res) => {
 });
 
 // AUTHENTICATED ROUTES
-app.get('/users', (req, res) => {
+app.get('/users', authenticateJWT, (req, res) => {
   const userNames = users.map(user => user.name.first);
   res.status(200).json({ users: userNames });
 });
 
-app.get('/:name', (req, res) => {
+app.get('/:name', authenticateJWT, (req, res) => {
   const userName = req.params.name.toLowerCase();
   const user = users.find(user => user.name.first.toLowerCase() === userName);
 
@@ -173,7 +173,7 @@ app.get('/:name', (req, res) => {
   }; 
 });
 
-app.post('/:name', (req, res) => {
+app.post('/:name', authenticateJWT, (req, res) => {
   const userName = req.params.name.toLowerCase();
   const user = users.find(user => user.name.first.toLowerCase() === userName);
 
@@ -199,7 +199,7 @@ app.post('/:name', (req, res) => {
   res.status(200).json({ userCart: user.cart });
 });
 
-app.delete('/:name', (req, res) => {
+app.delete('/:name', authenticateJWT, (req, res) => {
   res.status(200).send('You should be ADDING to your cart');
 });
 

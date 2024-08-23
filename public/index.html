@@ -11,7 +11,7 @@
       <div id="username-password-input-box">
         <input id="username-box" type="text" placeholder="username"></input>
         <input id="password-box" type="password" placeholder="password"></input>
-        <button id="submit" type="submit">Login</button>
+        <button id="submit" type="button">Login</button>
         </br>
       </div>
     </div>
@@ -19,7 +19,10 @@
     <img src="/SunglassesWireframe.png" alt="Sunglasses Wireframeeeee">
 
     <script>
-      document.getElementById('submit').addEventListener('click', () => {
+      document.getElementById('submit').addEventListener('click', (event) => {
+        console.log('On CLick...');
+        event.preventDefault();
+
         const username = document.getElementById('username-box').value;
         const password = document.getElementById('password-box').value;
         const credentials = btoa(`${username}:${password}`);
@@ -50,8 +53,6 @@
         });
 
         function fetchUserCart(username, token) {
-          const token = localStorage.getItem('token');
-
           fetch(`http://localhost:3000/${username}`, {
             method: 'GET',
             headers: {

@@ -33,35 +33,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Secret key for JWT
-// node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3';
-
-// Authentication middleware
-const authenticateJWT = (req, res, next) =>  {
-  console.log(req.headers);
-
-
-  const authHeader = req.headers['authorization'];
-  console.log('you got to authentication middleware');
-  console.log(authHeader);
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.status(403).send('Invalid token');
-      }
-
-      req.user = user;
-      next();
-    });
-  } else {
-    res.status(401).send('Authorization header missing');
-  }
-};
-
 // Error handling
 app.use((err, req, res, next) => {
 	console.error(err.stack);
@@ -76,7 +47,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Route for root path
 app.get('/', (req, res) => {
-  res.send('../index.html');
+  console.log('helllo?');
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+  // res.send('../index.html');
 });
 
 // Routes for /brands, /products, and /users
@@ -153,6 +126,31 @@ app.post('/login', (req, res) => {
     res.status(401).send('Username or password is incorrect');
   }
 });
+
+// JWT_SECRET
+const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3';
+
+// AUTHENTICATION MIDDLEWARE
+const authenticateJWT = (req, res, next) =>  {
+  const authHeader = req.headers['authorization'];
+  console.log('You got to authentication middleware');
+  console.log(authHeader);
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).send('Invalid token');
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.status(401).send('Authorization header missing');
+  }
+};
 
 app.get('/users', authenticateJWT, (req, res) => {
   const userNames = users.map(user => user.name.first);

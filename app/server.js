@@ -5,27 +5,28 @@ const jwt = require('jsonwebtoken');
 const bcrypt= require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml'); // REPLACED with new one './swagger.yaml' with the path to your Swagger file
+const swaggerDocument = YAML.load('./swagger.yaml');
 const app = express();
 const path = require('path');
 
+// PARSE JSON MIDDLEWARE
 app.use(express.json())
 app.use(bodyParser.json());
 
-// Importing the data from JSON files
+// JSON FILES
 const users = require('../initial-data/users.json');
 const brands = require('../initial-data/brands.json');
 const products = require('../initial-data/products.json');
 
-// CORS
+// CORS MIDDLEWARE
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Authentication, X-Username, X-Password, X-ApiKey",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
 };
 
-// Middleware stuff...
 app.use((req, res, next) => {
+  console.log('Getting there');
   res.set(CORS_HEADERS);
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -33,26 +34,49 @@ app.use((req, res, next) => {
   next();
 });
 
-// Error handling
+// ERROR HANDLING
 app.use((err, req, res, next) => {
 	console.error(err.stack);
 	res.status(500).send('Something broke!');
 });
 
-// Swagger
+// SWAGGER
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Serve static files from 'public' directory
+// STATIC PUBLIC DIRECTORY
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Route for root path
+// AUTHENTICATION MIDDLEWARE
+const authenticateJWT = (req, res, next) =>  {
+  const authHeader = req.headers['authorization'];
+  console.log('You got to authentication middleware');
+  console.log(authHeader);
+
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).send('Invalid token');
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.status(401).send('Authorization header missing');
+  }
+};
+
+
+// ROUTE TO ROOT
 app.get('/', (req, res) => {
   console.log('helllo?');
   res.sendFile(path.join(__dirname, '../public/index.html'));
   // res.send('../index.html');
 });
 
-// Routes for /brands, /products, and /users
+// NON-AUTHENTICATED ROUTES
 app.get('/brands', (req, res) => {
   const brandNames = brands.map(brand => brand.name);
   res.json( { 'All Brand Names': brandNames });
@@ -96,7 +120,10 @@ app.get('/products/:name', (req, res) => {
   };
 });
 
-// AUTHENTICATED ROUTES
+// JWT_SECRET
+const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3';
+
+// LOGIN
 app.post('/login', (req, res) => {
   const authHeader = req.headers.authorization;
   console.log(authHeader);
@@ -127,31 +154,7 @@ app.post('/login', (req, res) => {
   }
 });
 
-// JWT_SECRET
-const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3';
-
-// AUTHENTICATION MIDDLEWARE
-const authenticateJWT = (req, res, next) =>  {
-  const authHeader = req.headers['authorization'];
-  console.log('You got to authentication middleware');
-  console.log(authHeader);
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.status(403).send('Invalid token');
-      }
-
-      req.user = user;
-      next();
-    });
-  } else {
-    res.status(401).send('Authorization header missing');
-  }
-};
-
+// AUTHENTICATED ROUTES
 app.get('/users', authenticateJWT, (req, res) => {
   const userNames = users.map(user => user.name.first);
   res.status(200).json(userNames);
@@ -199,7 +202,7 @@ app.delete('/:name', authenticateJWT, (req, res) => {
   res.status(200).send('You should be ADDING to your cart');
 });
 
-// Starting the server
+// START SERVER
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);

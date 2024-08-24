@@ -44,14 +44,14 @@ app.use((err, req, res, next) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // STATIC PUBLIC DIRECTORY
-app.use(express.static(path.join(__dirname, '../public')));
+// app.use(express.static(path.join(__dirname, '../public')));
 app.use('/initial-data', express.static(path.join(__dirname, '../initial-data')));
 
 // ROUTE TO ROOT
 app.get('/', (req, res) => {
-  console.log('helllo?');
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-  // res.send('../index.html');
+  console.log('hello');
+  // res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.status(200).send('Are you ready to shop?');
 });
 
 // NON-AUTHENTICATED ROUTES
@@ -101,32 +101,10 @@ app.get('/products/:name', (req, res) => {
 // JWT_SECRET
 const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26afef3';
 
-// AUTHENTICATION MIDDLEWARE
-const authenticateJWT = (req, res, next) =>  {
-  const authHeader = req.headers['authorization'];
-  console.log('AUTHENTICATION');
-  console.log('AuthHeader: ', authHeader);
-  const token = authHeader.split(' ')[1];
-  console.log('Token: ', token);
-
-  if (authHeader) {
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.status(403).json({ error: 'Invalid token' });
-      }
-
-      req.user = user;
-      next();
-    });
-  } else {
-    res.status(401).json({ error: 'Authorization header missing'  });
-  }
-};
-
 // LOGIN
 app.post('/login', (req, res) => {
   console.log('LOGIN...');
-  const authHeader = req.headers.authorization;
+  authHeader = req.headers.authorization;
   console.log('AuthHeader: ', authHeader);
   if(!authHeader || !authHeader.startsWith('Basic ')) {
     return res.status(401).send({ error: 'Unauthorized' });
@@ -143,6 +121,7 @@ app.post('/login', (req, res) => {
   if (user &&  password === user.login.password) {
     // GENERATES TOKEN
     const token = jwt.sign({ username: user.login.username }, JWT_SECRET, {expiresIn: '1d' });
+
     console.log('Token: ', token);
 
     // ROUTE to (/{user.name.first})
@@ -154,6 +133,29 @@ app.post('/login', (req, res) => {
     res.status(401).send('Username or password is incorrect');
   }
 });
+
+// AUTHENTICATION MIDDLEWARE
+const authenticateJWT = (req, res, next) =>  {
+  let authHeader = req.headers['authorization'];
+  console.log('AUTHENTICATION');
+  console.log('AuthHeader: ', authHeader);
+
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+    console.log('AuthHeader Deconstructed: ', token);
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403).json({ error: 'Invalid token' });
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.status(401).json({ error: 'Authorization header missing'  });
+  }
+};
 
 // AUTHENTICATED ROUTES
 app.get('/users', authenticateJWT, (req, res) => {

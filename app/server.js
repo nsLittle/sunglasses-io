@@ -104,10 +104,10 @@ const JWT_SECRET = '9527e3a06a598251710743aa74e29e3681762684a01b184762469005a26a
 // AUTHENTICATION MIDDLEWARE
 const authenticateJWT = (req, res, next) =>  {
   const authHeader = req.headers['authorization'];
-  console.log('Authentication middleware');
+  console.log('AUTHENTICATION');
   console.log('AuthHeader: ', authHeader);
   const token = authHeader.split(' ')[1];
-  console.log(token);
+  console.log('Token: ', token);
 
   if (authHeader) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -125,7 +125,7 @@ const authenticateJWT = (req, res, next) =>  {
 
 // LOGIN
 app.post('/login', (req, res) => {
-  console.log('Login Stuff...');
+  console.log('LOGIN...');
   const authHeader = req.headers.authorization;
   console.log('AuthHeader: ', authHeader);
   if(!authHeader || !authHeader.startsWith('Basic ')) {

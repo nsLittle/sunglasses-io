@@ -25,6 +25,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
 };
 
+// BASIC MIDDLEWARE
 app.use((req, res, next) => {
   console.log('Basic Middleware Stuff...');
   res.set(CORS_HEADERS);
@@ -44,13 +45,11 @@ app.use((err, req, res, next) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // STATIC PUBLIC DIRECTORY
-// app.use(express.static(path.join(__dirname, '../public')));
 app.use('/initial-data', express.static(path.join(__dirname, '../initial-data')));
 
 // ROUTE TO ROOT
 app.get('/', (req, res) => {
   console.log('hello');
-  // res.sendFile(path.join(__dirname, '../public/index.html'));
   res.status(200).send('Are you ready to shop?');
 });
 

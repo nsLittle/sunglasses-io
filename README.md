@@ -6,15 +6,19 @@ If you have any questions about this project or the program in general, visit [p
 
 ### Project Description
 
-This mockup of an online Sunglass store is my first backend API project. I used Swagger Editor to create a yaml file to document the routes.
+This simple Express application is a mockup of an online Sunglass store. This is my first backend API project defining routes and APIs. I used Swagger Editor to create a yaml file to document the routes.
 
 ### Table of Contents
 
 - Sunglasses.io
   - app
-    - search.js
+    - server.js
   - initial-data
+    - braands.json
+    - products.json
+    - users.json
   - test
+    -server.test.js
   - package.json
   - README.md
   - SunglassesWireframe.png
@@ -29,6 +33,10 @@ This mockup of an online Sunglass store is my first backend API project. I used 
 
 ### Things to Add/Edit
 
-1. All the things
-2. JWT token?
-3. SORT /product by alphabetical order
+1. SORT /brands by alphabetical order
+2. SORT /products by alphabetical order
+3. SORT /users by alphabetical order
+4. GET /{wrong user name} should not return "error: invalid token". Should return "error: user not found"
+5. POST /{wrong user name} should not return "error: invalid token". Should return "error: user not found"
+6. DELETE /{wrong user name} should be return "You should be adding to the cart". Should return "You should login first"
+7. TESTING. ALL OF IT.

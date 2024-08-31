@@ -5,9 +5,13 @@ const jwt = require('jsonwebtoken');
 const bcrypt= require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml');
+// const swaggerDocument = YAML.load('../swagger.yaml');
 const app = express();
 const path = require('path');
+
+// ABSOLUTE PATHS TO SERVER
+const swaggerPath = path.resolve(__dirname, '../swagger.yaml');
+const swaggerDocument = YAML.load(swaggerPath);
 
 // PARSE JSON MIDDLEWARE
 app.use(express.json())

@@ -40,3 +40,5 @@ This simple Express application is a mockup of an online Sunglass store. This is
 5. POST /{wrong user name} should not return "error: invalid token". Should return "error: user not found"
 6. DELETE /{wrong user name} should be return "You should be adding to the cart". Should return "You should login first"
 7. TESTING. ALL OF IT.
+8. TEST error handling
+9. ERROR codes should be consistently used.

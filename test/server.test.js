@@ -1,16 +1,17 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../app/server');
+const expect = chai.expect;
 
 const should = chai.should();
 chai.use(chaiHttp);
 
-// Importing the data from JSON files
+// IMPORTING DATA FROM JSON FILES
 const users = require('../initial-data/users.json');
 const brands = require('../initial-data/brands.json');
 const products = require('../initial-data/products.json');
 
-// Tests for the server
+// TESTS FOR THE SERVER
 describe('Home', () => {
   describe('GETS home page', () => {
     it('it should .....', (done) => {
@@ -31,7 +32,7 @@ describe('Brands', () => {
         .get('/brands')
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.be.an('array');
+          res.body.should.be.an('object');
           res.body.should.assert(brands.length, '5');
           res.body.should.assert(brands[0].name, 'Oakley');
           done();
@@ -45,7 +46,7 @@ describe('Brands', () => {
         .get(`/brands/${productName}`)
         .end((err, res) =>{
           res.should.have.status(200);
-          res.body.should.be.an('array');
+          res.body.should.be.an('object');
           //  DOES IT RESPOND WITH PRODUCTS NAMES BY BRAND NAME
           done();
         });
@@ -60,7 +61,7 @@ describe('Products', () => {
         .get('/products')
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.be.an('array');
+          res.body.should.be.an('object');
           res.body.should.assert(products.length, '11');
           res.body.should.assert(products[0].name, 'Superglasses');
           done();
@@ -75,10 +76,11 @@ describe('Products', () => {
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.an('object');
-          res.body.should.have.property('name');
-          res.body.should.have.property('description');
-          res.body.should.have.property('price');
-          res.body.should.have.property('imageUrls');
+          res.body.should.have.property('Product Details');
+          res.body['Product Details'].should.have.property['name'];
+          res.body['Product Details'].should.have.property('description');
+          res.body['Product Details'].should.have.property('price');
+          res.body['Product Details'].should.have.property('imageUrls');
           done();
         });
     });
@@ -86,13 +88,19 @@ describe('Products', () => {
 });
 
 describe('Login', () => {
+  let authToken = '';
   describe('POST username and password from client-side server', () => {
-    it(`it should return "Let's shop!"`, (done) => {
+    it(`it should return a authentication token and a text message, "Let's shop!"`, (done) => {
       chai.request(server)
         .post('/login')
+        .send({ username: 'greenlion235', password: 'waters'})
         .end((err, res) => {
+          if (err) return done(err);
           res.should.have.status(200);
+          res.body.should.have.property('token');
+          res.body.should.have.property('message');
           res.text.should.equal(`Let's shop!`);
+          authToken = res.body.token;
           done();
         });
       });

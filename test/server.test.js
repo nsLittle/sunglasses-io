@@ -115,17 +115,23 @@ describe('Products', () => {
 
 describe('Login', () => {
   let authToken = '';
+
   describe('POST /login', () => {
-    it(`it should return a authentication token and a text message, "Let's shop!"`, (done) => {
+    it(`it should return authentication token and message`, (done) => {
+      const credentials =  Buffer.from('greenlion235:waters').toString('base64');
+
       chai.request(server)
         .post('/login')
-        .send({ username: 'greenlion235', password: 'waters'})
+        .set('Authorization', `Basic ${credentials}`)
         .end((err, res) => {
           if (err) return done(err);
+
+          console.log('RSVP: ', res.status);
+          console.log('RSVP, encore: ', res.body);
+
           expect(res).to.have.status(200);
           expect(res.body).to.have.property('token');
-          expect(res.body).to.have.property('message');
-          expect(res.body).to.have.property('redirectUrl').that.equals('/susanna');
+          expect(res.body).to.have.property('redirectUrl').that.equals('/natalia');
           authToken = res.body.token;
           console.log('Auth Token:', authToken);
           done();

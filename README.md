@@ -33,8 +33,8 @@ This simple Express application is a mockup of an online Sunglass store. This is
 
 ### Things to Add/Edit
 
-1. SORT /brands by alphabetical order
-2. SORT /products by alphabetical order
+1.SORT /products by alphabetical order 2.
+
 3. SORT /users by alphabetical order
 4. GET /{wrong user name} should not return "error: invalid token". Should return "error: user not found"
 5. POST /{wrong user name} should not return "error: invalid token". Should return "error: user not found"

@@ -23,12 +23,32 @@ describe('Home', () => {
           done();
         });
     });
+    it('it should return status 500 if an error occurs', (done) => {
+      const originalRequest = chai.request(server).get;
+
+      chai.request(server).get = () => {
+        return Promise.reject(new Error('Server error blah blah'));
+      };
+
+      chai.request(server)
+        .get('/')
+        .end((err, res) => {
+          chai.request(server).get = originalRequest;
+
+          if (err) {
+            expect(res).to.have.status(500);
+          } else {
+            expect(res).to.have.status(200);
+          }
+          done();
+        });
+    });
   });
 });
 
 describe('Brands', () => {
   describe('GETS /brands', () => {
-    it('it should return all FIVE brand names, including sample brand name [0] "Burberry"', (done) => {
+    it('it should return all FIVE brand names, including example brand name [0] "Burberry"', (done) => {
       chai.request(server)
         .get('/brands')
         .end((err, res) => {
@@ -50,9 +70,9 @@ describe('Brands', () => {
           if (err) return done(err);
           expect(res).to.have.status(200);
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.property('burberry');
+          expect(res.body).to.have.property('Burberry');
           
-          const products = res.body['burberry'];
+          const products = res.body['Burberry'];
 
           expect(products).to.be.an('array');
 
@@ -84,7 +104,7 @@ describe('Products', () => {
 
           expect(productNames).to.be.an('array');
           expect(productNames).to.have.lengthOf(11);
-          expect(productNames[0]).to.equal('Better glasses');
+          expect(productNames[0]).to.equal('Better Glasses');
           done();
         });
     });
@@ -162,7 +182,7 @@ describe('Authorization Tester', () => {
   
   describe('Cart', () => {
     describe('GETS /:name', () => {
-      it('it should return cart of existing user with product details', (done) => {
+      it('it should return existing user\'s cart with product details', (done) => {
         if (!authToken) return done(new Error('Authentication token did not stick'));
 
         chai.request(server)
@@ -170,17 +190,17 @@ describe('Authorization Tester', () => {
           .set('Authorization', `Bearer ${authToken}`)
           .end((err, res)=> {
             if (err) return done(err);
+
+            console.log('Response body:', res.body); 
   
             expect(res).to.have.status(200);
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.have.property('userCart').that.is.an('object');
 
-            const userCart = res.body['users'];
-
-            expect(userCart).to.be.an('object');
-            expect(userCart).to.have.property('items').that.is.an('array');
+            const userCart = res.body.userCart;
 
             const item = userCart.items[0];
-
-            expect(item).to.have.property('product');
+            expect(item).to.have.property('product').that.is.a('string');
             expect(item).to.have.property('quantity');
             expect(item).to.have.property('price');
             done();

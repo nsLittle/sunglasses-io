@@ -58,25 +58,27 @@ app.get('/', (req, res) => {
 });
 
 // NON-AUTHENTICATED ROUTES
-// sort by alpha
 app.get('/brands', (req, res) => {
   const brandNames = brands.map(brand => brand.name);
   brandNames.sort();
   res.json( { 'All Brand Names': brandNames });
 });
 
-// sort by ascending price
 app.get('/brands/:name', (req, res) => {
   // NO SYMBOLS & NO SPACE
-  const brandName = req.params.name.toLowerCase();
-  const brand = brands.find(brand => brand.name.toLowerCase() === brandName); //Oakley
+  const brandName = req.params.name;
+  const brand = brands.find(brand => brand.name.toUpperCase === brandName.toUpperCase);
 
   if (brand) {
     const brandId = brand.id;
 
     const productsByBrand = products.filter(product => product.categoryId === brandId);
     
-    productsByBrand.sort((a, b) => a.price - b.price);
+    productsByBrand.sort((a, b) => {
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      return a.price - b.price;
+    });
     
     res.json({ [brandName]: productsByBrand });
   } else {
@@ -84,12 +86,27 @@ app.get('/brands/:name', (req, res) => {
   };
 });
 
-// sort by alpha
 app.get('/products', (req, res) => {
-	const productNames = products.map(product => product.name);
-  productNames.sort();
+  try {
+    const capitalizeNames = (name) => {
+      if (!name) return '';
+  
+      return name
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    }
 
-	res.json({ 'All Product Names': productNames });
+    const productNames = products
+      .map(product => capitalizeNames(product.name))
+      .sort()
+
+    res.json({ 'All Product Names': productNames });
+  } catch (error) {
+    console.error('Error in /products route: ', error);
+    res.status(500).json({ error: 'Internal server error or something something'})
+  }
+
 });
 
 app.get('/products/:name', (req, res) => {
@@ -181,7 +198,7 @@ app.get('/:name', authenticateJWT, (req, res) => {
 
   if (user) {
     const userCart = user.cart;
-    res.status(200).json({ users: userCart });
+    res.status(200).json({ userCart: userCart });
   } else {
     res.status(401).json({ error: 'Unauthorized' });
   }; 
@@ -200,9 +217,9 @@ app.post('/:name', authenticateJWT, (req, res) => {
   };
 
   const newItem= {
-    product: req.body.product || '',
-    quantity: req.body.quantity || 0,
-    price: req.body.price || 0,
+    product: req.body.product || 'glas',
+    quantity: req.body.quantity || 1,
+    price: req.body.price || 50,
   };
 
   user.cart.items.push(newItem);

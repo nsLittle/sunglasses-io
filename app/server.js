@@ -58,27 +58,36 @@ app.get('/', (req, res) => {
 });
 
 // NON-AUTHENTICATED ROUTES
+// sort by alpha
 app.get('/brands', (req, res) => {
   const brandNames = brands.map(brand => brand.name);
+  brandNames.sort();
   res.json( { 'All Brand Names': brandNames });
 });
 
+// sort by ascending price
 app.get('/brands/:name', (req, res) => {
   // NO SYMBOLS & NO SPACE
-  const brandName = req.params.name.toLowerCase(); //Oakley
+  const brandName = req.params.name.toLowerCase();
   const brand = brands.find(brand => brand.name.toLowerCase() === brandName); //Oakley
 
   if (brand) {
-    const brandId = brand.id; // 1
-    const product = products.filter(product => product.categoryId === brandId);
-    res.json({ [brandName]: product });
+    const brandId = brand.id;
+
+    const productsByBrand = products.filter(product => product.categoryId === brandId);
+    
+    productsByBrand.sort((a, b) => a.price - b.price);
+    
+    res.json({ [brandName]: productsByBrand });
   } else {
     res.status(401).send('Brand name not found');
   };
 });
 
+// sort by alpha
 app.get('/products', (req, res) => {
 	const productNames = products.map(product => product.name);
+  productNames.sort();
 
 	res.json({ 'All Product Names': productNames });
 });

@@ -202,7 +202,7 @@ app.post('/:name', authenticateJWT, (req, res) => {
   const newItem= {
     product: req.body.product || '',
     quantity: req.body.quantity || 0,
-    price: req.body.total || 0,
+    price: req.body.price || 0,
   };
 
   user.cart.items.push(newItem);
@@ -214,7 +214,16 @@ app.post('/:name', authenticateJWT, (req, res) => {
 });
 
 app.delete('/:name', authenticateJWT, (req, res) => {
-  res.status(200).send('You should be ADDING to your cart');
+  const userName = req.params.name.toLowerCase();
+  const user = users.find(user => user.name.first.toLowerCase() === userName);
+
+  if (!user) {
+    return res.status(401).json({ error: 'User not found'});
+  }
+
+  user.cart = { items: [], total: 0 };
+
+  res.status(200).json({ message: 'Cart was successfully deleted' });
 });
 
 // START SERVER

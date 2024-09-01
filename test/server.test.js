@@ -58,6 +58,11 @@ describe('Brands', () => {
 
           products.forEach(product => {
             expect(product).to.have.property('id');
+            expect(product).to.have.property('categoryId');
+            expect(product).to.have.property('name');
+            expect(product).to.have.property('description');
+            expect(product).to.have.property('price');
+            expect(product).to.have.property('imageUrls');
           })
           done();
         });
@@ -101,19 +106,14 @@ describe('Products', () => {
           expect(productDetails).to.have.property('description');
           expect(productDetails).to.have.property('price');
           expect(productDetails).to.have.property('imageUrls');
-
-          res.body.should.have.property('Product Details');
-          res.body['Product Details'].should.have.property['name'];
-          res.body['Product Details'].should.have.property('description');
-          res.body['Product Details'].should.have.property('price');
-          res.body['Product Details'].should.have.property('imageUrls');
           done();
         });
     });
   });
 });
 
-describe('Login', () => {
+// ONLY AUTHORIZED USERS
+describe('Authorization Tester', () => {
   let authToken = '';
 
   describe('POST /login', () => {
@@ -125,88 +125,118 @@ describe('Login', () => {
         .set('Authorization', `Basic ${credentials}`)
         .end((err, res) => {
           if (err) return done(err);
-
-          console.log('RSVP: ', res.status);
-          console.log('RSVP, encore: ', res.body);
-
+  
           expect(res).to.have.status(200);
           expect(res.body).to.have.property('token');
           expect(res.body).to.have.property('redirectUrl').that.equals('/natalia');
           authToken = res.body.token;
-          console.log('Auth Token:', authToken);
           done();
         });
       });
-   });
+  });
+  
+  describe('Users', () =>{
+    describe('GETS /users', () => {
+      it('it should return names of users', (done) => {
+        if (!authToken) return done(new Error('Authentication token did not stick'));
+
+         chai.request(server)
+          .get('/users')
+          .set('Authorization', `Bearer ${authToken}`)
+          .end((err, res) => {
+            if (err) return done(err);
+  
+            expect(res).to.have.status(200);
+            expect(res.body).to.be.an('object');
+
+            const userNames = res.body['users'];
+
+            expect(userNames).to.be.an('array');
+            expect(userNames).to.have.lengthOf(3);
+
+            done();
+          });
+      });
+    });
+  });
+  
+  describe('Cart', () => {
+    describe('GETS /:name', () => {
+      it('it should return cart of existing user with product details', (done) => {
+        if (!authToken) return done(new Error('Authentication token did not stick'));
+
+        chai.request(server)
+          .get('/natalia')
+          .set('Authorization', `Bearer ${authToken}`)
+          .end((err, res)=> {
+            if (err) return done(err);
+  
+            expect(res).to.have.status(200);
+
+            const userCart = res.body['users'];
+
+            expect(userCart).to.be.an('object');
+            expect(userCart).to.have.property('items').that.is.an('array');
+
+            const item = userCart.items[0];
+
+            expect(item).to.have.property('product');
+            expect(item).to.have.property('quantity');
+            expect(item).to.have.property('price');
+            done();
+          });
+      });
+    });
+
+    describe('POST /:name', () => {
+      it('it should return updated cart of existing user', (done) => {
+        if (!authToken) return done(new Error('Authentication token did not stick'));
+
+        chai.request(server)
+          .post('/natalia')
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+              items: [{
+              product: 'glas',
+              quantitty: 1,
+              price: 50
+            }],
+            total: 50
+          })
+          .end((err, res) => {
+            if (err) return done(err);
+  
+            expect(res).to.have.status(200);
+
+            const userCart = res.body['userCart'];
+
+            expect(userCart).to.be.an('object');
+            expect(userCart).to.have.property('items').that.is.an('array');
+            expect(userCart.items[0]).to.have.property('product');
+            expect(userCart.items[1]).to.have.property('quantity');
+            expect(userCart).to.have.property('total').that.is.a('number');
+
+            done();
+          });
+      });
+    });
+
+    describe('DELETE /:name', () => {
+      it('it should return with item deleted from cart of existing users', (done) => {
+        if (!authToken) return done(new Error('Authentication token did not stick'));
+
+        chai.request(server)
+          .delete('/natalia')
+          .set('Authorization', `Bearer ${authToken}`)
+          .end((err, res) => {
+            if (err) return done(err);
+  
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.property('message').eql('Cart was successfully deleted');
+            done();
+        });
+      });
+    });
+
+  });
 });
-
-// describe('Users', () =>{
-//   describe('GETS names of users', () => {
-//     it('it should return names of users', (done) => {
-//        chai.request(server)
-//         .get('/users')
-//         .set('Authorization', `Bearer ${authToken}`)
-//         .end((err, res) => {
-//           if (err) return done(err);
-//           res.should.have.status(200);
-//           res.body.should.be.an('array');
-//           res.body.should.assert(users.length, '3');
-//           done();
-//         });
-//     });
-//   });
-// });
-
-// ONLY AUTHORIZED USERS
-
-// describe('Cart', () => {
-//   describe('GETS cart of existing users', () => {
-//     it('it should return cart of existing users', (done) => {
-//       chai.request(server)
-//         .get('/susanna')
-//         .end((err, res)=> {
-//           res.should.have.status(200);
-//           res.body.should.be.an('object');
-//           res.body.should.have.property('items');
-//           res.body.should.have.property('total');
-//           done();
-//         });
-//     });
-//   });
-
-  // describe('POST cart of existing users', () => {
-  //   it('it should return updated cart of existing users', (done) => {
-
-  //     chai.request(server)
-  //       .post('/susanna')
-  //       .send({
-  //           items: [{
-  //           product: 'glas',
-  //           quantitty: 1,
-  //           price: 50
-  //         }],
-  //         total: 50
-  //       })
-  //       .end((err, res) => {
-  //         res.should.have.status(200);
-  //         res.body.should.be.an('object');
-  //         res.body.should.have.property('items');
-  //         res.body.should.have.property('total');
-  //         done();
-  //       });
-  //   });
-  // });
-
-  // describe('DELETE cart of existing users', () => {
-  //   it('it should return with item deleted from cart of existing users', (done) => {
-
-  //     chai.request(server)
-  //       .delete('/susanna')
-  //       .end((err, res) => {
-  //         res.should.have.status(200);
-  //         res.body.should.be.an('object');
-  //         done();
-  //     });
-  //   });
-  // });
-// });
